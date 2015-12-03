@@ -1,0 +1,22 @@
+Have a Case class which holds relevant information for every case in our data:
+
+Case ID
+Race
+Sex
+Date of birth
+Arrest date
+
+Original charges - base charges and enhancements
+Filed charges - base charges and enhancements
+Filed case type
+Crime type
+Crime description
+
+Original disposition
+Original disposition date
+Recent disposition
+Recent disposition date
+
+Sentencing date
+Sentencing comment / information
+
