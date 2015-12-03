@@ -1,0 +1,4 @@
+To-do's:
+* general functions to fix parsing - Anthony
+* track down enhancements (say) >10 times and see their corresponding base charges 
+  - see for all these base charges, how many times they are charged independently and overall
