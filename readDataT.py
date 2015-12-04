@@ -130,6 +130,9 @@ for j in range(2008, 2015):
 		#	print 'Not found:', caseuid, i, j
 
 
+commonEnh = []
+commonBase = []
+
 enhCounts = {}
 for enh in enhancements_all:
 	enhCounts[enh] = 0
@@ -138,15 +141,21 @@ enh1BaseCounts = {}
 enh2BaseCounts = {}
 
 
+
 base1Counts = 0
 base2Counts = 0
 base3Counts = 0
+
+
+commonEnhCheat = []
 
 for case in caseList:
 	filedchrg = caseList[case].getFiledChrg()
 	if filedchrg:
 		for enh in filedchrg[2]:
 			enhCounts[enh] += 1
+
+		"""
 		if '12022.7(a)' in filedchrg[2]:
 			for base in filedchrg[1]:
 				if base not in enh1BaseCounts:
@@ -167,13 +176,76 @@ for case in caseList:
 
 		if '243(d)' in filedchrg[1]:
 			base3Counts += 1
+		"""
 
-"""
 for enh in enhCounts:
-	if enhCounts[enh] > 100:
-		print enh, enhCounts[enh]
+	if enhCounts[enh] > 10:
+		commonEnh.append(enh)
 
+#print commonEnh
+
+
+enhBaseCounts = {}
+for enh in commonEnh:
+	enhBaseCounts[enh] = {}
+
+for case in caseList:
+	filedchrg = caseList[case].getFiledChrg()
+	if filedchrg:
+		for enh in filedchrg[2]:
+			if enh in commonEnh:
+				for base in filedchrg[1]:
+					if base not in enhBaseCounts[enh]:
+						enhBaseCounts[enh][base] = 0
+					enhBaseCounts[enh][base] += 1
+
+for enh in commonEnh:
+	#print enhCounts[enh]
+	for base in enhBaseCounts[enh]:
+		if enhBaseCounts[enh][base] > 30:
+			#print enh, base, enhBaseCounts[enh][base]
+			if base not in commonBase:
+				commonBase.append(base)
+
+	#print
+
+print commonBase, len(commonBase)
+
+baseCounts = {}
+for base in commonBase:
+	baseCounts[base] = 0
+for case in caseList:
+	filedchrg = caseList[case].getFiledChrg()
+	if filedchrg:
+		for base in filedchrg[1]:
+			if base in commonBase:
+				baseCounts[base] += 1
+
+#for base in baseCounts:
+#	print base, baseCounts[base]
+
+importantPairs = []
+for enh in commonEnh:
+	for base in enhBaseCounts[enh]:
+		if (enh, base) in importantPairs:
+			continue
+		if (base in commonBase) and (10 * enhBaseCounts[enh][base] > baseCounts[base]):
+			importantPairs.append((enh, base))
+
+
+importantEnh = []
+importantBase = []
+
+for pair in importantPairs:
+	if pair[0] not in importantEnh:
+		importantEnh.append(pair[0])
+	if pair[1] not in importantBase:
+		importantBase.append(pair[1])
+
+print importantEnh
 print
+print importantBase
+
 """
 for base in enh1BaseCounts:
 	if enh1BaseCounts[base] > 100:
@@ -190,3 +262,4 @@ print
 print '245(a)(1)', base1Counts
 print '245(a)(4)', base2Counts
 print '243(d)', base3Counts
+"""
