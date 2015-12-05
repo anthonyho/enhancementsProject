@@ -1,4 +1,5 @@
 import math
+import datetime
 
 class Case(object):
 
@@ -71,11 +72,13 @@ class Case(object):
 			self.sex = sex
 
 	def updateDOB(self, dob):
-		if dob:
+#		if dob:
+		if isinstance(dob, datetime.datetime):
 			self.dob = dob.date()
 
 	def updateArrestDate(self, arrest):
-		if arrest:
+#		if arrest:
+		if isinstance(arrest, datetime.datetime):
 			self.arrest = arrest.date()
 
 	def updateOrigChrg(self, origchrg):
@@ -152,11 +155,13 @@ class Case(object):
 			self.recentdisp = int(recentdisp)
 
 	def updateOrigDispDate(self, origdispdate):
-		if origdispdate:
+#		if origdispdate:
+		if isinstance(origdispdate, datetime.datetime):
 			self.origdispdate = origdispdate.date()
 
 	def updateRecentDispDate(self, recentdispdate):
-		if recentdispdate:
+#		if recentdispdate:
+		if isinstance(recentdispdate, datetime.datetime):
 			self.recentdispdate = recentdispdate.date()
 
 	def updateCaseData(self, race, sex, dob, arrest, origchrg, filedchrg, casetype, crimetype, crimedescr):
