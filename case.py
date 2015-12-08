@@ -3,7 +3,7 @@ import datetime
 
 class Case(object):
 
-	NONCHARGES = ['3000.08', '3056pc', '3451', '3455(a)', '3454(a)', '3454(b)', \
+	NONCHARGES = ['3000.08', '3056pc', '3451', '3455a', '3454a', '3454b', \
                   'battach', 'cms', 'detain', 'enroute', 'fugitive', 'mtrda', \
                   'parole', 'probvio', 'prcs', 'rws647f', 'safekeep', 'tfwt', \
                   'notintbl']
@@ -68,8 +68,10 @@ class Case(object):
 			self.race = race
 
 	def updateSex(self, sex):
-		if sex:
-			self.sex = sex
+		if sex == 'M':
+			self.sex = 'Male'
+		elif sex == 'F':
+			self.sex = 'Female'
 
 	def updateDOB(self, dob):
 #		if dob:

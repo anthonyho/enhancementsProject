@@ -1,4 +1,10 @@
 import case
+from sklearn.feature_extraction import DictVectorizer
+import sklearn.linear_model as lm
+import random
+
+
+
 
 def analyzeData(caseList):
 	"""
@@ -46,17 +52,6 @@ def analyzeData(caseList):
 	for enh in enhancements_all:
 		enhCounts[enh] = 0
 
-	enh1BaseCounts = {}
-	enh2BaseCounts = {}
-
-
-
-	base1Counts = 0
-	base2Counts = 0
-	base3Counts = 0
-
-
-	commonEnhCheat = []
 
 	for case in caseList:
 		filedchrg = caseList[case].getFiledChrg()
@@ -64,31 +59,10 @@ def analyzeData(caseList):
 			for enh in filedchrg[2]:
 				enhCounts[enh] += 1
 
-			"""
-			if '12022.7a' in filedchrg[2]:
-				for base in filedchrg[1]:
-					if base not in enh1BaseCounts:
-						enh1BaseCounts[base] = 0
-					enh1BaseCounts[base] += 1
 
-			if '12022b1' in filedchrg[2]:
-				for base in filedchrg[1]:
-					if base not in enh2BaseCounts:
-						enh2BaseCounts[base] = 0
-					enh2BaseCounts[base] += 1
-
-			if '245a1' in filedchrg[1] or '245a1' in filedchrg[1]:
-				base1Counts += 1
-
-			if '245a4' in filedchrg[1] or '245a4' in filedchrg[1]:
-				base2Counts += 1
-
-			if '243d' in filedchrg[1]:
-				base3Counts += 1
-			"""
 
 	for enh in enhCounts:
-		if enhCounts[enh] > 20:
+		if enhCounts[enh] > 50:
 			commonEnh.append(enh)
 
 	#print commonEnh
@@ -118,7 +92,7 @@ def analyzeData(caseList):
 
 		#print
 
-	print commonBase, len(commonBase)
+	#print commonBase, len(commonBase)
 
 	baseCounts = {}
 	for base in commonBase:
@@ -138,7 +112,7 @@ def analyzeData(caseList):
 		for base in enhBaseCounts[enh]:
 			if (enh, base) in importantPairs:
 				continue
-			if (base in commonBase) and (5 * enhBaseCounts[enh][base] > baseCounts[base]):
+			if (base in commonBase) and (10 * enhBaseCounts[enh][base] > baseCounts[base]):
 				importantPairs.append((enh, base))
 
 
@@ -146,7 +120,7 @@ def analyzeData(caseList):
 	importantEnh = []
 	importantBase = []
 
-	print
+	#print
 
 	for pair in importantPairs:
 		print pair[0], pair[1], enhBaseCounts[pair[0]][pair[1]], baseCounts[pair[1]]
@@ -154,44 +128,190 @@ def analyzeData(caseList):
 			importantEnh.append(pair[0])
 		if pair[1] not in importantBase:
 			importantBase.append(pair[1])
-
+	"""
 	print 
-	print importantEnh
+	print importantEnh, len(importantEnh)
 	print
 	print importantBase
 	print
-
+	print commonEnh, len(commonEnh)
+	"""
 
 	base_all = []
+	crimetype_all = []
+	race_all = []
 	for case in caseList:
+		crt = caseList[case].crimetype
+		race = caseList[case].race
 		filedchrg = caseList[case].getFiledChrg()
 		if filedchrg:
 			for base in filedchrg[1]:
 				if base not in base_all:
 					base_all.append(base)
+
+		if crt and crt not in crimetype_all:
+			crimetype_all.append(crt)
+
+		if race and race not in race_all:
+			race_all.append(race)
+
+
+		
+		
+
+
+
+	noncharges = ['3000.08', '3056pc', '3451', '3455a', '3454a', '3454b', \
+                  'battach', 'cms', 'detain', 'enroute', 'fugitive', 'mtrda', \
+                  'parole', 'probvio', 'prcs', 'rws647f', 'safekeep', 'tfwt', \
+                  'notintbl']
+
+	def extractFeatures(case):
+		features = {}
+		if case.race:
+			features[case.race] = 1
+		if case.sex:
+			features[case.sex] = 1
+		if case.dob and case.arrest:
+			features['age'] = case.arrest.year - case.dob.year
+		# 	features['age2'] = (case.arrest.year - case.dob.year) ** 2
+		if case.casetype:
+			features[case.casetype] = 1
+		if case.crimetype:
+			features[case.crimetype] = 1
+
+		# for nonchrg in case.filedchrg[0]:
+		# 	features[nonchrg] = 1
+		for basechrg in case.filedchrg[1]:
+			features[basechrg] = 1
+
+		return features
+
+	def extractFeaturesFull(case):
+		features = {}
+		for race in race_all:
+			if race == case.race:
+		 		features[race] = 1
+		 	else:
+		 		features[race] = 0
+		if case.sex:
+			features[case.sex] = 1
+		if case.dob and case.arrest:
+			features['age'] = case.arrest.year - case.dob.year
+		# 	features['age2'] = (case.arrest.year - case.dob.year) ** 2
+		if case.casetype:
+			features[case.casetype] = 1
+
+		for crt in crimetype_all:
+			if crt == case.crimetype:
+				features[crt] = 1
+			else:
+				features[crt] = 0
+
+		# for nonchrg in noncharges:
+		# 	if nonchrg in case.filedchrg[0]:
+		# 		features[nonchrg] = 1
+		# 	else:
+		# 		features[nonchrg] = 0
+		for basechrg in base_all:
+			if basechrg in case.filedchrg[1]:
+				features[basechrg] = 1
+			else:
+				features[basechrg] = 0
+
+		return features
+
+
+
+
 	"""
-	print base_all, len(base_all)
-	print
 
-	for base in base_all:
-		if base.find('(') != -1:
-			print base
-	"""
-	"""
-	for base in enh1BaseCounts:
-		if enh1BaseCounts[base] > 100:
-			print base, enh1BaseCounts[base]
+	for enh in importantEnh:
+		print enh
 
-	print
+		numsamps = 20
+		avgScoreTest = 0
+		avgDiffTest = 0
+		avgPercTest = 0
+		avgScoreTrain = 0
+		avgDiffTrain = 0
+		avgPercTrain = 0
 
-	for base in enh2BaseCounts:
-		if enh2BaseCounts[base] > 100:
-			print base, enh2BaseCounts[base]
+		for i in range(numsamps):
+			trainMatrixDict = []
+			testMatrixDict = []
+			trainResult = []
+			testResult = []
+			testtotalnum = 0
+			testzeronum = 0
+			traintotalnum = 0
+			trainzeronum = 0
+			firsttest = True
+			firsttrain = True
+			for case in caseList:
+				#print case
+				rand = random.randint(1, 10)
+				
+				if rand > 3:
+					if firsttrain: 
+						features = extractFeaturesFull(caseList[case])
+						firsttrain = False
+					else:
+						features = extractFeatures(caseList[case])
+					trainMatrixDict.append(features)
+					traintotalnum += 1
+					if enh in caseList[case].filedchrg[2]:
+						trainResult.append(1)
+					else:
+						trainzeronum += 1
+						trainResult.append(0)
+				else:
+					if firsttest: 
+						features = extractFeaturesFull(caseList[case])
+						firsttest = False
+					else:
+						features = extractFeatures(caseList[case])
+					testMatrixDict.append(features)
+					testtotalnum += 1
+					if enh in caseList[case].filedchrg[2]:
+						testResult.append(1)
+					else:
+						testzeronum += 1
+						testResult.append(0)
 
-	print
 
-	print '245(a)(1)', base1Counts
-	print '245(a)(4)', base2Counts
-	print '243(d)', base3Counts
-	"""
-	
+			vec = DictVectorizer()
+			trainMatrix = vec.fit_transform(trainMatrixDict)
+			testMatrix = vec.fit_transform(testMatrixDict)
+
+
+			reg = lm.LogisticRegression(max_iter=1000)		
+			
+
+			reg.fit(trainMatrix, trainResult)
+			scoreTrain = reg.score(trainMatrix, trainResult)
+			scoreTest = reg.score(testMatrix, testResult)
+			trainZeroHeurSc = float(trainzeronum) / traintotalnum
+			testZeroHeurSc = float(testzeronum) / testtotalnum
+			avgScoreTest += scoreTest
+			avgDiffTest += scoreTest - testZeroHeurSc
+			avgPercTest += (scoreTest - testZeroHeurSc) / (1 - testZeroHeurSc)
+			avgScoreTrain += scoreTrain
+			avgDiffTrain += scoreTrain - trainZeroHeurSc
+			avgPercTrain += (scoreTrain - trainZeroHeurSc) / (1 - trainZeroHeurSc)
+			#print scoreTrain, scoreTrain - trainZeroHeurSc, (scoreTrain - trainZeroHeurSc) / (1 - trainZeroHeurSc)
+			#print scoreTest, scoreTest - testZeroHeurSc, (scoreTest - testZeroHeurSc) / (1 - testZeroHeurSc)
+		
+
+		avgPercTrain /= numsamps
+		avgDiffTrain /= numsamps
+		avgScoreTrain /= numsamps
+		avgPercTest /= numsamps
+		avgDiffTest /= numsamps
+		avgScoreTest /= numsamps
+
+		print avgScoreTrain, avgDiffTrain, avgPercTrain
+		print avgScoreTest, avgDiffTest, avgPercTest
+		print
+
+		"""

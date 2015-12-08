@@ -141,7 +141,8 @@ def readDataT(maindir = '/home/todor/Documents/Projects/Mass Incarceration/'):
 				newcase.updateCaseData(Charges[j]['Race'][i], Charges[j]['Defendant Sex'][i], Charges[j]['DOB'][i], Charges[j]['Arrest Date'][i], \
 										Charges[j]['List of Original Charges'][i], Charges[j]['List of Filed Charges'][i], Charges[j]['Filed Case Type'][i], \
 										Charges[j]['Crime Type'][i], Charges[j]['Crime Description'][i])
-				caseList[caseuid] = newcase
+				if newcase.filedchrg and (newcase.casetype == 'F' or newcase.casetype == 'M') and newcase.race == 'O':
+					caseList[caseuid] = newcase
 			#else:
 			#	print 'Found:', caseuid, i, j
 
